@@ -63,10 +63,40 @@ $superheroes = [
   ], 
 ];
 
-?>
+function filtration($supers, $somequery) {
+    return array_filter($supers, function($supe) use ($somequery) {
+        return ($supe['name'] == $somequery || $supe['alias'] == $somequery);
+    });
+}
 
-<ul>
-<?php foreach ($superheroes as $superhero): ?>
-  <li><?= $superhero['alias']; ?></li>
-<?php endforeach; ?>
-</ul>
+if (isset($_GET["query"])) {
+    $slimquery = trim($_GET["query"]);
+    $nuquery = filter_var($slimquery, FILTER_SANITIZE_STRING);
+    if (empty($nuquery) || $nuquery == "" || $nuquery == " "){
+        echo "<ul>";
+        foreach ($superheroes as $superhero):
+            echo "<li>" . $superhero['alias'] . "</li>";
+        endforeach;
+        echo "</ul>";
+    }
+    else {
+        $nusuperheroes = array_values(filtration($superheroes, $nuquery));
+        if (empty($nusuperheroes)) {
+            echo "<h3 class=\"nojoy\">SUPERHERO NOT FOUND</h3>";
+        }
+        else {
+            $nusupe = $nusuperheroes[0];
+            echo "<h3 class=\"format\">" . $nusupe["alias"] . "</h3>";
+            echo "<h4>A.K.A. " . $nusupe["name"] . "</h4>";
+            echo "<p>" . $nusupe["biography"] . "</p>";
+        }
+    }
+}
+else {
+    echo "<ul>";
+    foreach ($superheroes as $superhero):
+        echo "<li>" . $superhero['alias'] . "</li>";
+    endforeach;
+    echo "</ul>";
+}
+?>
